@@ -108,6 +108,24 @@
                     }]
                 };
                 myChart.setOption(option);
+				myChart.on(ecConfig.EVENT.MAP_SELECTED, function (param){
+                    var selected = param.selected;
+                    var urlArr = ['地图1.html','http://http://www.cnblogs.com/sapho'];
+                    for (var p in selected) {
+                     	if (selected[p]) {
+                            switch(p){
+                            	case '河南':
+                                    location.href = urlArr[0];
+                                    break;
+                            	case '重庆':
+                                    location.href = urlArr[1];
+                                    break;
+                            	default:
+                                    break;
+                            }
+                    	}
+                    }
+            	});
             }
         ); 
         
