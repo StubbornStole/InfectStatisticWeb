@@ -3,7 +3,6 @@
 <head>
 	<meta charset="UTF-8">
 	<title>疫情状况</title>   
-    <script src="http://echarts.baidu.com/build/dist/echarts.js" type="text/javascript"></script>
     <style type="text/css">
     	table {
     		margin: auto;
@@ -12,7 +11,7 @@
     	td {
     		text-align:center
     	}
-    	#main,#header{
+    	#box,#header{
     		margin:0 auto;
     		border:0px solid #000;
     		width:900px;
@@ -24,10 +23,10 @@
     </style>
 </head>
 <body>
-	<div id="header" style="height:180px">
+	<div id="header" style="height:200px">
 		<a href="InfectStatisticWeb.html">返回</a>
 		<h4 id="provinces">XX省</h4>
-		<p id="time">时间：2020.03.11</p>
+		<p>记录开始时间：2020.01.19  ||  最新更新时间：2020.02.02</p>
 		<table width="700px">
 			<tr>
 				<th>现有确诊</th>
@@ -36,104 +35,392 @@
 				<th>累计死亡</th>
 			</tr>
 			<tr>
-				<td>XX</td>
-				<td>XX</td>
-				<td>XX</td>
-				<td>XX</td>
+				<td id="s1">XX</td>
+				<td id="s2">XX</td>
+				<td id="s3">XX</td>
+				<td id="s4">XX</td>
 			</tr>
 			<tr>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
+				<td id="m1">昨日+X</td>
+				<td id="m2">昨日+X</td>
+				<td id="m3">昨日+X</td>
+				<td id="m4">昨日+X</td>
 			</tr>
 		</table>
 	</div>
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <div id="main" style="height:400px"></div>
+    <div id="box" style="height:500px"></div>
     <div id="button" style="width:900px;height:80px;border:0px solid #dddddd;margin:10px auto;text-align:center">
 		<button type="button" onclick="change_con('xy')">新增确诊趋势</button>
-		<button type="button" onclick="change_con('lj')">累计确诊趋势</button>
+		<button type="button" onclick="change_con('lj')">疑似确诊趋势</button>
 		<button type="button" onclick="change_con('zy')">累计治愈/死亡</button>
 	</div>
     <!-- ECharts单文件引入 -->
-    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js" ></script>
     <script type="text/javascript">
-        function change_con(value){
-        	if (value == "xy"){
-        		location.href = 'LocalConditions1.html';
+    function getQueryVariable(variable){
+    	var query = window.location.search.substring(1);
+    	var vars = query.split("&");
+    	for (var i=0;i<vars.length;i++) {
+       		var pair = vars[i].split("=");
+        	if(pair[0] == variable){return pair[1];}
+    	}
+    	return(false);
+	}
+	var ip;
+	var sp;
+	var cure;
+	var dead;
+	var province;
+	var Request = getQueryVariable("province");
+	switch (Request){
+    	case '2':{
+        	province="北京市";
+        	ip = [0,0,0,0,8,14,38,59,69,105,151,199,236,296,339];
+        	sp= [0,0,1,3,3,3,29,44,80,118,160,205,275,352,434];
+        	cure =[ 0,0,0,0,0,0,0,0,0,0,0,2,3,3,5];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case "27":{
+        	province="天津市";
+        	ip = [0,0,0,2,4,5,8,10,14,23,24,27,31,32,41];
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '25':{
+        	province="上海市";
+        	ip = [0,0,1,9,16,20,33,40,53,66,80,101,118,143,167]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,1,1,1,3,4,5,5,9,10]  ;
+        	dead = [0,0,0,0,0,0,0,2,2,2,2,2,2,2,2];
+        	break;
+    	}
+    	case '3':{
+        	province="重庆市";
+        	ip = [0,0,5,6,9,27,57,75,110,132,147,165,206,238,262]  ;
+        	sp= [0,0,0,13,13,13,13,13,13,13,13,13,13,13,13]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,1,1,1,3]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,2,2];
+        	break;
+    	}
+    	case '10':{
+        	province="河北省";
+        	ip = [0,0,0,1,2,8,13,18,33,48,65,82,96,104,113]  ;
+        	sp= [0,0,0,0,0,0,5,16,54,99,137,188,235,295,345]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,3,3]  ;
+        	dead = [0,0,0,0,0,2,2,2,2,2,2,2,2,2,2];
+        	break;
+    	}
+    	case '11':{
+        	province="河南省";
+        	ip = [0,0,0,1,5,9,32,83,128,168,206,278,352,422,493]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1];
+        	cure =[0,0,0,0,0,0,0,0,0,0,1,2,3,3,3]  ;
+        	dead = [0,0,0,0,0,0,0,2,2,2,4,4,4,4,4];
+        	break;
+    	}
+    	case '30':{
+        	province="云南省";
+        	ip = [0,0,0,0,0,0,5,11,19,44,55,76,83,93,105]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,1,2,3];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '18':{
+        	province="辽宁省";
+        	ip = [0,0,0,0,2,4,12,17,22,27,36,39,45,60,64]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,1,1,1,1];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '12':{
+        	province="黑龙江省";
+        	ip = [0,0,0,0,0,3,8,14,20,29,36,42,58,79,94]  ;
+        	sp= [0,0,0,1,0,0,0,10,50,83,128,176,250,326,405]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2];
+        	dead = [0,0,0,0,0,2,2,2,2,2,2,2,4,4,4];
+        	break;
+    	}
+    	case '14':{
+        	province="湖南省";
+        	ip = [0,0,0,0,0,24,43,69,100,143,221,277,332,389,463]  ;
+        	sp= [0,0,0,0,0,3,3,3,3,3,3,3,3,3,3]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,2,3,8]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '1':{
+        	province="安徽省";
+        	ip = [0,0,0,0,8,14,38,59,69,105,151,199,236,296,339]  ;
+        	sp= [0,0,1,3,3,3,29,44,80,118,160,205,275,352,434]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,2,3,3,5]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+       		break;
+    	}
+    	case '22':{
+        	province="山东省";
+        	ip = [0,0,0,0,0,0,21,39,63,87,121,145,178,202,225]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '29':{
+        	province="新疆省";
+        	ip = [0,0,0,0,0,2,3,4,5,10,13,14,17,18,21]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '16':{
+        	province="江苏省";
+        	ip = [0,0,0,0,1,9,18,31,47,70,99,129,168,202,236]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,2,5,6];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '31':{
+        	province="浙江省";
+        	ip = [0,0,0,10,27,43,62,104,128,173,296,428,537,599,661]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,2,3,8,14,22]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '17':{
+       	 	province="江西省";
+        	ip = [0,0,0,2,3,7,18,36,48,72,109,162,240,287,334]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,2,3,3,7,9,10]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '13':{
+        	province="湖北省";
+        	ip = [0,0,270,375,444,549,729,1052,1423,2714,3554,4586,5806,7153,9074]  ;
+        	sp= [3,6,567,897,1546,2479,4506,6578,6898,8976,10795,14506,16954,18952,19543];
+        	cure =[0,0,25,28,28,31,32,42,44,44,44,54,80,130,179] ;
+        	dead = [0,0,12,18,34,48,78,104,152,200,250,324,408,498,588];
+        	break;
+    	}
+    	case '7':{
+        	province="广西省";
+        	ip = [1,1,2,4,15,25,35,48,53,60,80,89,102,113,129]  ;
+        	sp= [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,2,2,2,2,2,2]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '5':{
+        	province="甘肃省";
+        	ip = [0,0,0,0,2,4,7,14,19,24,26,30,36,41,52]  ;
+        	sp= [0,0,0,0,1,1,1,1,1,1,1,1,1,11,14]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '23':{
+        	province="山西省";
+        	ip = [0,0,0,0,1,1,6,9,13,20,27,35,39,47,56]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,1,1,1,1]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '19':{
+        	province="内蒙古省";
+        	ip = [0,0,0,0,0,1,1,1,5,7,10,12,14,17,20]  ;
+        	sp= [0,0,0,0,0,2,5,0,1,2,2,3,4,9,13]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+   		}
+    	case '24':{
+        	province="陕西省";
+        	ip = [0,0,0,0,0,3,5,15,22,35,46,56,63,87,102]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '15':{
+        	province="吉林省";
+        	ip = [0,0,0,0,1,3,4,4,5,7,8,13,13,16,16];
+        	sp= [0,0,0,0,0,0,0,1,0,0,0,10,10,10,14]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,1,1,1];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '4':{
+        	province="福建省";
+        	ip = [0,0,0,1,5,10,18,35,59,82,101,120,144,159,179]  ;
+        	sp= [0,0,0,0,2,4,4,42,73,155,208,264,316,355,402]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '8':{
+        	province="贵州省";
+        	ip = [0,0,0,3,3,4,5,7,7,7,7,10,24,33,41]  ;
+        	sp= [0,0,1,1,1,1,1,4,2,4,7,62,68,66,66]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,1,1,1,2,2,2]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '6':{
+        	province="广东省";
+        	ip = [1,1,26,32,53,78,78,126,168,221,291,373,500,584,663]  ;
+        	sp= [0,0,4,4,4,4,4,4,4,4,4,4,4,4,4]  ;
+        	cure =[0,0,0,0,2,2,2,2,4,5,6,9,10,12,14]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '21':{
+        	province="青海省";
+        	ip = [0,0,0,0,0,0,0,0,3,5,5,5,7,8,10];
+        	sp= [0,0,0,0,0,0,1,0,0,0,0,1,1,1,1]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '28':{
+        	province="西藏省";
+        	ip = [0,0,0,0,0,2,3,4,5,10,13,14,17,18,21]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '26':{
+        	province="四川省";
+        	ip = [0,0,0,2,8,15,28,44,69,90,108,142,178,208,232]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,1,1,3,3]  ;
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,2,2,2,2];
+        	break;
+    	}
+    	case '20':{
+        	province="宁夏省";
+        	ip = [0,0,0,0,1,2,2,3,6,10,11,15,19,24,26]  ;
+        	sp= [0,0,0,0,0,1,1,1,0,0,2,1,1,1,8]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '9':{
+        	province="海南省";
+        	ip = [0,0,0,1,5,9,32,83,128,168,206,278,352,422,493]  ;
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]  ;
+        	cure =[0,0,0,0,0,0,0,0,0,0,1,2,3,3,3];
+        	dead = [0,0,0,0,0,0,0,2,2,2,4,4,4,4,4];
+        	break;
+    	}
+    	case '32':{
+        	province="台湾省";
+        	ip = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '33':{
+        	province="香港";
+        	ip = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+    	case '34':{
+        	province="澳门";
+        	ip = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	sp= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	cure =[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	dead = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        	break;
+    	}
+ 	}
+	document.getElementById("provinces").innerHTML = province;
+	document.getElementById("s1").innerHTML=ip[14];
+	var sum1 = ip[14] + cure[14] + dead [14];
+	document.getElementById("s2").innerHTML=sum1;
+	document.getElementById("s3").innerHTML=cure[14];
+	document.getElementById("s4").innerHTML=dead[14];
+	var k1 = ip[14] - ip[13];
+	document.getElementById("m1").innerHTML="昨日+"+k1;
+	var k2 = ip[14] + cure[14] +dead [14] - ip[13] - cure[13] - dead [13];
+	document.getElementById("m2").innerHTML="昨日+"+k2;
+	var k3 = cure[14] - cure[13];
+	document.getElementById("m3").innerHTML="昨日+"+k3;
+	var k4 = dead[14] - dead[13];
+	document.getElementById("m4").innerHTML="昨日+"+k4;
+	
+    var myChart=echarts.init(document.getElementById("box"));
+            
+   	var option={
+        //标题
+    	title:{
+        	text:'累计治愈/死亡'
+        },
+        //工具箱
+        //保存图片
+        toolbox:{
+            show:true,
+            feature:{
+                saveAsImage:{
+                	show:false
+            	}
         	}
-        	else if (value == "lj"){
-        		location.href = 'LocalConditions2.html';
-        	}
-        	else if (value == "zy"){
-        		location.href = 'LocalConditions3.html';
-        	}
-        };
-    	
-    	// 路径配置
-        require.config({
-            paths: {
-                echarts: 'http://echarts.baidu.com/build/dist'
-            }
-        });
-        
-        // 使用
-        require(
-            [
-                'echarts',
-                'echarts/chart/line' // 使用柱状图就加载bar模块，按需加载
-            ],
-            function init(ec) {
-                // 基于准备好的dom，初始化echarts图表
-                var myChart=ec.init(document.getElementById("main"));
-                
-                var option={
-                        //标题
-                	title:{
-                          text:'疫情详情'
-                    },
-                    //工具箱
-               	    //保存图片
-                    toolbox:{
-                        show:true,
-                        feature:{
-                           	saveAsImage:{
-                                show:false
-                            }
-                        }
-                    },
-                    tooltip:{},
-                    //图例-每一条数据的名字叫销量
-                    legend:{
-                        data:['累计治愈','累计死亡']
-                    },
-                    //x轴
-                    xAxis:[{
-                        type : 'category',
-                        boundaryGap : false,
-                        data : ['2.05','2.06','2.07','2.08','2.09','2.10','2.11']
-                    }],
-                    //y轴没有显式设置，根据值自动生成y轴
-                    yAxis:{},
-                    //数据-data是最终要显示的数据
-                    series:[
-                    	{
-                        	name:'累计治愈',
-                        	type:'line',
-                        	data:[10,12,15,16,20,25,30]
-                    	},
-                    	{
-                        	name:'累计死亡',
-                        	type:'line',
-                        	data:[0,0,1,2,2,2,3]
-                    	}
-                    ]
-                };
-                //使用刚刚指定的配置项和数据项显示图表
-                myChart.setOption(option); 
-            }
-        );
+        },
+        tooltip:{},
+        legend:{
+         	data:["累计治愈","死亡"]
+        },
+        //x轴
+        xAxis:[{
+            type : 'category',
+            boundaryGap : false,
+            data:["2020-01-19","2020-01-20","2020-01-21","2020-01-22","2020-01-23","2020-01-24","2020-01-25","2020-01-26","2020-01-27","2020-01-28","2020-01-29"
+                ,"2020-01-30","2020-01-31","2020-02-01","2020-02-02"]
+        }],
+        //y轴没有显式设置，根据值自动生成y轴
+        yAxis:{},
+        //数据-data是最终要显示的数据
+        series:[{
+            name:"累计治愈",
+            type:'line',
+            data:cure,
+            itemStyle : { normal: {label : {show: true}}},
+            color:"green"
+        },
+       	{
+            name:"死亡",
+            type:'line',
+            data:dead,
+            itemStyle : { normal: {label : {show: true}}},
+            color:"black"
+        }]
+    };
+    //使用刚刚指定的配置项和数据项显示图表
+    myChart.setOption(option); 
+    function change_con(value){
+    	if (value == "xy"){
+    		location.href = "LocalConditions1.html?province="+Request;
+    	}
+    	else if (value == "lj"){
+    		location.href = "LocalConditions2.html?province="+Request;
+    	}
+    	else if (value == "zy"){
+    		location.href = "LocalConditions3.html?province="+Request;
+    	}
+    };
     </script>
 </body>
 </html>
