@@ -3,14 +3,15 @@
 <head>
     <meta charset=UTF-8 />
     <title>echart示例 中国地图</title>   
-    <script src="http://echarts.baidu.com/build/dist/echarts.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/echarts.min.js" ></script>
+    <script type="text/javascript" src="js/China.js" ></script>
     <style type="text/css">
      	div{
 	    	background-color:rgb(178, 245, 245)
 		}
 		table {
     		margin: auto;
-    		width:900px;
+    		width:800px;
     	}
     	td {
     		text-align:center
@@ -27,7 +28,7 @@
     </style>
 </head>
 
-<body onload="readFile()">
+<body>
     <div class="text" style="width:900px;height:100px;border:0px solid #ec0a0a;margin:10px auto;text-align:center">
 
         <br/><br/><br/>
@@ -36,9 +37,12 @@
         &nbsp;<a href="remind.html">防疫知识热搜</a>&nbsp;
 	</div>
 
-	<div id="header" style="height:240px">
-		<h4 id="provinces">XX省</h4>
-		<p id="time">时间：2020.03.11</p>
+	<div id="header" style="height:260px">
+		<h3 id="provinces">全国</h3>
+		<p>记录开始时间：2020.01.19  ||  最新更新时间：2020.02.02</p>
+		<form action="/example/html5/demo_form.asp" method="get">
+			时间： <input type="date" name="user_date" id="nowtime"/>
+		</form>
 		<table>
 			<tr>
 				<th>现有确诊</th>
@@ -46,14 +50,14 @@
 				<th>现有重症</th>
 			</tr>
 			<tr>
-				<td>XX</td>
-				<td>XX</td>
-				<td>XX</td>
+				<td id="s1">13904</td>
+				<td id="s2">1724</td>
+				<td id="s3">3456</td>
 			</tr>
 			<tr>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
+				<td id="m1">昨日+2579</td>
+				<td id="m2">昨日+284</td>
+				<td id="m3">昨日+321</td>
 			</tr>
 		</table>
 		<table>
@@ -63,36 +67,280 @@
 				<th>累计死亡</th>
 			</tr>
 			<tr>
-				<td>XX</td>
-				<td>XX</td>
-				<td>XX</td>
+				<td id="s4">14479</td>
+				<td id="s5">295</td>
+				<td id="s6">304</td>
 			</tr>
 			<tr>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
-				<td>昨日+X</td>
+				<td id="m4">昨日+2579</td>
+				<td id="m5">昨日+80</td>
+				<td id="m6">昨日+45</td>
 			</tr>
 		</table>
 	</div>
 	
-	<div id="button" style="width:900px;height:80px;border:0px solid #dddddd;margin:10px auto;text-align:center">
-		<button id="xyqz" type="button" onclick="change_con('xy')">现有确诊</button>
-		<button id="ljqz" type="button" onclick="change_con('lj')">累计确诊</button>
-		<p id="qz">当前现有确诊病例数，排除治愈、死亡</p>
+	<div id="button" style="width:900px;height:40px;border:0px solid #dddddd;margin:10px auto;text-align:center">
+		<button id="now" type="button" onclick="current()">现有确诊</button>
+		<button id="past" type="button" onclick="cumulative()">累计确诊</button>
 	</div>
 
-    <div id="div1" style="width:900px;height:400px;border:0px solid #dddddd;margin:10px auto;text-align:center">
+    <div id="maps" style="width:900px;height:400px;border:0px solid #dddddd;margin:10px auto;text-align:center">
     </div>
     
     <div id="text"></div>
-
+    
     <script type="text/javascript">   
-    	var peo = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    	var myData = [     	
+        	{name: '安徽', value: 335,index: 1}, {name: '北京', value: 181,index: 2},
+		    {name: '重庆', value: 258,index: 3}, {name: '福建', value: 179,index: 4},
+		    {name: '甘肃', value: 49,index: 5}, {name: '广东', value: 649,index: 6},
+		    {name: '广西', value: 127,index: 7}, {name: '贵州', value: 44,index: 8}, 
+		    {name: '海南', value: 45,index: 9}, {name: '河北', value: 109,index: 10}, 
+		    {name: '河南', value: 488,index: 11}, {name: '黑龙江', value: 91,index: 12}, 
+		    {name: '湖北', value: 8601,index: 13}, {name: '湖南', value: 455,index: 14},
+		    {name: '吉林', value: 16,index: 15}, {name: '江苏', value: 230,index: 16},
+		    {name: '江西', value: 324,index: 17}, {name: '辽宁', value: 63,index: 18},
+		    {name: '内蒙古', value: 26,index: 19}, {name: '宁夏', value: 28,index: 20},
+		    {name: '青海', value: 11,index: 21}, {name: '山东', value: 225,index: 22},
+		    {name: '山西', value: 55,index: 23}, {name: '陕西', value: 102,index: 24},
+		    {name: '上海', value: 156,index: 25}, {name: '四川', value: 228,index: 26},
+		    {name: '天津', value: 41,index: 27}, {name: '西藏', value: 1,index: 28},
+		    {name: '新疆', value: 21,index: 29}, {name: '云南', value: 102,index: 30},
+		    {name: '浙江', value: 639,index: 31}, {name: '台湾', value: 89,index: 32},
+		    {name: '香港', value: 44,index: 33}, {name: '澳门', value: 32,index: 34}
+    	];
+   	 	var myChart = echarts.init(document.getElementById('maps'));
+    	var optionMap = {
+        	backgroundColor: '#FFFFFF',
+        	title: {
+            	text: '当前现有确诊病例数，排除治愈、死亡',
+            	subtext: '',
+            	x: 'center'
+        	},
+        	tooltip: {
+            	//trigger: 'item',
+           	 	//triggerOn: 'click',
+        	},
+        	//左侧小导航图标
+        	visualMap: {
+            	show: true,
+            	x: 'left',
+            	y: 'center',
+            	splitList: [
+                	{start: 10000}, {start: 1000, end: 9999},
+                	{start: 100, end: 999}, {start: 10, end: 99},
+                	{start: 1, end: 9}, {start: 0, end: 0},
+            	],
+            	color: ['#611931', '#A40D14', '#D30910', '#F99C48', '#FFC4A7', '#FFFFFF']
+        	},
+
+        	//配置属性
+        	series: [{
+            	name: '确诊人数：',
+            	type: 'map',
+            	mapType: 'china',
+            	roam: true,
+            	label: {
+                	normal: {
+                    	show: true  //省份名称
+                	},
+                	emphasis: {
+                    	show: true
+               	 	}
+            	},
+            	data: myData  //数据
+        	}]
+    	};
+   	 	myChart.setOption(optionMap);
+    	myChart.on('click',function(params)
+    	{
+    		window.location.href="LocalConditions1.html?province="+params.data.index;
+    	});
+    	function cumulative() {
+    		var myData = [    		       		    
+    		    {name: '安徽', value: setSum(1),index: 1}, {name: '北京', value: setSum(2),index: 2},
+    		    {name: '重庆', value: setSum(3),index: 3}, {name: '福建', value: setSum(4),index: 4},
+    		    {name: '甘肃', value: setSum(5),index: 5}, {name: '广东', value: setSum(6),index: 6},
+    		    {name: '广西', value: setSum(7),index: 7}, {name: '贵州', value: setSum(8),index: 8}, 
+    		    {name: '海南', value: setSum(9),index: 9}, {name: '河北', value: setSum(10),index: 10}, 
+    		    {name: '河南', value: setSum(11),index: 11}, {name: '黑龙江', value: setSum(12),index: 12}, 
+    		    {name: '湖北', value: setSum(13),index: 13}, {name: '湖南', value: setSum(14),index: 14},
+    		    {name: '吉林', value: setSum(15),index: 15}, {name: '江苏', value: setSum(16),index: 16},
+    		    {name: '江西', value: setSum(17),index: 17}, {name: '辽宁', value: setSum(18),index: 18},
+    		    {name: '内蒙古', value: setSum(19),index: 19}, {name: '宁夏', value: setSum(20),index: 20},
+    		    {name: '青海', value: setSum(21),index: 21}, {name: '山东', value: setSum(22),index: 22},
+    		    {name: '山西', value: setSum(23),index: 23}, {name: '陕西', value: setSum(24),index: 24},
+    		    {name: '上海', value: setSum(25),index: 25}, {name: '四川', value: setSum(26),index: 26},
+    		    {name: '天津', value: setSum(27),index: 27}, {name: '西藏', value: setSum(28),index: 28},
+    		    {name: '新疆', value: setSum(29),index: 29}, {name: '云南', value: setSum(30),index: 30},
+    		    {name: '浙江', value: setSum(31),index: 31}, {name: '台湾', value: setSum(32),index: 32},
+    		    {name: '香港', value: setSum(33),index: 33}, {name: '澳门', value: setSum(34),index: 34}
+    		];
+    		var myChart = echarts.init(document.getElementById('maps'));
+    		var optionMap = {
+    		    //配置属性
+    		    title: {
+    		        text: '累计确诊病例数，包含治愈、死亡',
+    		        subtext: '',
+    		        x: 'center'
+    		    },
+    		    series: [{
+    		        name: '确诊人数：',
+    		        type: 'map',
+    		        mapType: 'china',
+    		        roam: true,
+    		        label: {
+    		            normal: {
+    		                show: true  //省份名称
+    		            },
+    		            emphasis: {
+    		                show: true
+    		            }
+    		        },
+    		        data: myData  //数据
+    		    }]
+    		};
+    		myChart.setOption(optionMap);
+			document.getElementById("past").setAttribute("disabled", true);
+			document.getElementById("now").removeAttribute("disabled");
+    	}
+    	function current() {
+    		var myData = [     	
+            	{name: '安徽', value: setNumber(1),index: 1}, {name: '北京', value: setNumber(2),index: 2},
+    		    {name: '重庆', value: setNumber(3),index: 3}, {name: '福建', value: setNumber(4),index: 4},
+    		    {name: '甘肃', value: setNumber(5),index: 5}, {name: '广东', value: setNumber(6),index: 6},
+    		    {name: '广西', value: setNumber(7),index: 7}, {name: '贵州', value: setNumber(8),index: 8}, 
+    		    {name: '海南', value: setNumber(9),index: 9}, {name: '河北', value: setNumber(10),index: 10}, 
+    		    {name: '河南', value: setNumber(11),index: 11}, {name: '黑龙江', value: setNumber(12),index: 12}, 
+    		    {name: '湖北', value: setNumber(13),index: 13}, {name: '湖南', value: setNumber(14),index: 14},
+    		    {name: '吉林', value: setNumber(15),index: 15}, {name: '江苏', value: setNumber(16),index: 16},
+    		    {name: '江西', value: setNumber(17),index: 17}, {name: '辽宁', value: setNumber(18),index: 18},
+    		    {name: '内蒙古', value: setNumber(19),index: 19}, {name: '宁夏', value: setNumber(20),index: 20},
+    		    {name: '青海', value: setNumber(21),index: 21}, {name: '山东', value: setNumber(22),index: 22},
+    		    {name: '山西', value: setNumber(23),index: 23}, {name: '陕西', value: setNumber(24),index: 24},
+    		    {name: '上海', value: setNumber(25),index: 25}, {name: '四川', value: setNumber(26),index: 26},
+    		    {name: '天津', value: setNumber(27),index: 27}, {name: '西藏', value: setNumber(28),index: 28},
+    		    {name: '新疆', value: setNumber(29),index: 29}, {name: '云南', value: setNumber(30),index: 30},
+    		    {name: '浙江', value: setNumber(31),index: 31}, {name: '台湾', value: setNumber(32),index: 32},
+    		    {name: '香港', value: setNumber(33),index: 33}, {name: '澳门', value: setNumber(34),index: 34}
+        	];
+       	 	var myChart = echarts.init(document.getElementById('maps'));
+        	var optionMap = {
+            	backgroundColor: '#FFFFFF',
+            	title: {
+                	text: '当前现有确诊病例数，排除治愈、死亡',
+                	subtext: '',
+                	x: 'center'
+            	},
+            	tooltip: {
+                	//trigger: 'item',
+               	 	//triggerOn: 'click',
+            	},
+            	//左侧小导航图标
+            	visualMap: {
+                	show: true,
+                	x: 'left',
+                	y: 'center',
+                	splitList: [
+                    	{start: 10000}, {start: 1000, end: 9999},
+                    	{start: 100, end: 999}, {start: 10, end: 99},
+                    	{start: 1, end: 9}, {start: 0, end: 0},
+                	],
+                	color: ['#611931', '#A40D14', '#D30910', '#F99C48', '#FFC4A7', '#FFFFFF']
+            	},
+
+            	//配置属性
+            	series: [{
+                	name: '确诊人数：',
+                	type: 'map',
+                	mapType: 'china',
+                	roam: true,
+                	label: {
+                    	normal: {
+                        	show: true  //省份名称
+                    	},
+                    	emphasis: {
+                        	show: true
+                   	 	}
+                	},
+                	data: myData  //数据
+            	}]
+        	};
+       	 	myChart.setOption(optionMap);
+    		myChart.setOption(optionMap);
+			document.getElementById("now").setAttribute("disabled", true);
+			document.getElementById("past").removeAttribute("disabled");
+    	}
+    	
+    	document.getElementById("now").setAttribute("disabled", true);
+    	var recordTime = 15;
+    	var selectTime = ["2020-01-19","2020-01-20","2020-01-21","2020-01-22","2020-01-23","2020-01-24","2020-01-25","2020-01-26"
+            ,"2020-01-27","2020-01-28","2020-01-29","2020-01-30","2020-01-31","2020-02-01","2020-02-02"];
+ 	    
+ 	    var totalNum = [
+ 	    	[2,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ 	    	[7,0,5,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ 	    	[283,0,10,5,0,0,26,2,0,0,0,0,0,239,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+ 	    	[430,1,14,6,1,0,32,4,3,4,1,1,0,338,0,0,0,2,0,0,0,0,0,0,0,8,3,2,0,0,0,10,0,0,0],
+ 	    	[599,9,26,9,5,2,51,15,3,8,2,5,1,399,0,1,1,3,2,0,1,0,0,1,0,15,9,4,0,0,0,27,0,0,0],
+ 	    	[859,15,35,27,10,4,76,25,4,11,7,9,3,494,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,43,0,0,0],
+ 	    	[1066,39,35,27,10,4,76,25,4,11,7,9,3,658,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,62,0,0,0],
+ 	    	[1387,60,35,27,10,4,76,25,4,11,7,9,3,958,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,104,0,0,0],
+ 	    	[1747,70,35,27,10,4,76,25,4,11,7,9,3,1303,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,128,0,0,0],
+ 	    	[3071,106,35,27,10,4,76,25,4,11,7,9,3,2570,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,173,0,0,0],
+ 	    	[4008,152,35,27,10,4,76,25,4,11,7,9,3,3385,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,294,0,0,0],
+ 	    	[5052,198,35,27,10,4,76,25,4,11,7,9,3,4370,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,425,0,0,0],
+ 	    	[6215,234,35,27,10,4,76,25,4,11,7,9,3,5522,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,529,0,0,0],
+ 	    	[7479,294,35,27,10,4,76,25,4,11,7,9,3,6774,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,585,0,0,0],
+ 	    	[13904,335,181,258,179,49,649,127,44,15,109,488,91,8601,455,16,230,324,63,26,28,11,225,55,102,156,228,41,1,24,102,639,89,44,32],
+ 	    ];
+ 	    
+ 	    var totalSum = [
+ 	    	[2,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ 	    	[7,0,5,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ 	    	[314,0,10,5,0,0,26,2,0,0,0,0,0,270,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+ 	    	[467,1,14,6,1,0,32,4,3,4,1,1,0,375,0,0,0,2,0,0,0,0,0,0,0,8,3,2,0,0,0,10,0,0,0],
+ 	    	[646,9,26,9,5,2,53,15,3,8,2,5,1,444,0,1,1,3,2,0,1,0,0,1,0,15,9,4,0,0,0,27,0,0,0],
+ 	    	[916,15,36,27,10,4,76,25,4,11,7,9,4,549,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,43,0,0,0],
+ 	    	[1096,15,36,27,10,4,76,25,4,11,7,9,4,729,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,62,0,0,0],
+ 	    	[1387,60,35,27,10,4,76,25,4,11,7,9,3,958,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,104,0,0,0],
+ 	    	[1747,70,35,27,10,4,76,25,4,11,7,9,3,1303,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,128,0,0,0],
+ 	    	[3071,106,35,27,10,4,76,25,4,11,7,9,3,2570,24,3,9,7,4,1,2,0,0,1,3,19,16,5,0,2,0,173,0,0,0],
+ 	    	[4008,152,35,27,10,4,76,25,4,11,7,9,3,3385,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,294,0,0,0],
+ 	    	[5052,198,35,27,10,4,76,25,4,11,7,9,3,4370,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,425,0,0,0],
+ 	    	[6215,234,35,27,10,4,76,25,4,11,7,9,3,5522,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,529,0,0,0],
+ 	    	[7479,294,35,27,10,4,76,25,4,11,7,9,3,6774,24,3,9,7,4,1,2,0,0,1,3,19,16,5,1,2,0,585,0,0,0],
+ 	    	[14479,339,191,262,179,52,663,129,69,64,69,439,94,9074,463,22,236,334,68,28,30,13,248,63,117,167,232,50,1,24,111,661,89,44,32],
+ 	    ];
    		var areaStr =  ["全国","安徽","北京","重庆","福建","甘肃","广东",
     			"广西","贵州","海南","河北","河南","黑龙江","湖北","湖南","吉林","江苏","江西",
     			"辽宁","内蒙古","宁夏","青海","山东","山西","陕西","上海","四川","天津","西藏",
-    			"新疆","云南","浙江"];
-		function init(){
+    			"新疆","云南","浙江","台湾","香港","澳门"];
+   		function setNumber(value){
+   			var InstallDate = document.getElementById("nowtime").value;
+   			var i = 0;
+   			for (i=0 ; i < 15 ; i++){
+   				if (InstallDate == selectTime[i]){
+   					return totalNum[i][value];
+   				}
+   			} 
+   			return totalNum[14][value];
+   			//document.getElementById("text").innerHTML=InstallDate;
+   		}
+   		function setSum(value){
+   			var InstallDate = document.getElementById("nowtime").value;
+   			var i = 0;
+   			for (i=0 ; i < 15 ; i++){
+   				if (InstallDate == selectTime[i]){
+   					return totalSum[i][value];
+   				}
+   			} 
+   			return totalSum[14][value];
+   			//document.getElementById("text").innerHTML=InstallDate;
+   		}
+		//读取功能
+		/*
+   		window.onload=function(){
     		var fso = new ActiveXObject("Scripting.FileSystemObject");
     		// 获取目录下所有文件，对于该浏览器缓存目录，仅能获取到一个文件
    			var path = '部分疫情日志log';
@@ -103,18 +351,21 @@
     		var fileArray = new Array();
     		var fileName = '';
     		for(; !ff.atEnd(); ff.moveNext()){
-        		fileName = ff.item().Name + '';
-        		fileName = fileName.toLowerCase();
-    			fileName0 = fileName.substring(0,fileName.indexOf('.'));
-        		s += fileName + '\n';
-
+        		fileName = ff.item().Name;
+        		//fileName = fileName.toLowerCase();
+    			readFile(fileName);
     		}
     	
 		};
 	
-		window.onload=function(){
+		function readFile(fileName){
+			var peoqC = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	    	var peoyC = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	    	var peoCureC = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	    	var peoDeadC = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+			var path = "部分疫情日志log\\"+fileName;
 			var fso = new ActiveXObject("Scripting.FileSystemObject");
-			var f = fso.OpenTextFile("部分疫情日志log\\2020-01-24.log.txt"); //这里必须为绝对路径
+			var f = fso.OpenTextFile(path); //这里必须为绝对路径
 			var str = "";
 			while(!f.AtEndOfStream){
 				var temp=f.ReadLine() //读取一行数据并按空格分割
@@ -132,8 +383,17 @@
 							if (areaStr[n]==tem[0]) {
 								if (tem[2]=="感染患者") {
 									var peopleNum = parseInt(tem[3]);
-									peo[n] += peopleNum;
-									peo[0] += peopleNum;
+									peoq[n] += peopleNum;
+									peoq[0] += peopleNum;
+									peoqC[n] += peopleNum;
+									peoqC[0] += peopleNum;
+								}
+								if (tem[2]=="疑似患者") {
+									var peopleNum = parseInt(tem[3]);
+									peoy[n] += peopleNum;
+									peoy[0] += peopleNum;
+									peoyC[n] += peopleNum;
+									peoyC[0] += peopleNum;
 								}
 							}
 						}
@@ -142,8 +402,14 @@
 						for (n = 0 ; n < 32 ; n++) {
 							if (areaStr[n]==tem[0]) {
 								var peopleNum = parseInt(tem[2]);
-								peo[n] -= peopleNum;
-								peo[0] -= peopleNum;
+								peoCure[n] += peopleNum;
+								peoCure[0] += peopleNum;
+								peoq[n] -= peopleNum;
+								peoq[0] -= peopleNum;
+								peoCureC[n] += peopleNum;
+								peoCureC[0] += peopleNum;
+								peoqC[n] -= peopleNum;
+								peoqC[0] -= peopleNum;
 							}
 						}
 					}
@@ -151,25 +417,60 @@
 						for (n = 0 ; n < 32 ; n++) {
 							if (areaStr[n]==tem[0]) {
 								var peopleNum = parseInt(tem[2]);
-								peopleNum[n] -= peopleNum;
-								peopleNum[0] -= peopleNum;
+								peoDead[n] += peopleNum;
+								peoDead[0] += peopleNum;
+								peoq[n] -= peopleNum;
+								peoq[0] -= peopleNum;
+								peoDeadC[n] += peopleNum;
+								peoDeadC[0] += peopleNum;
+								peoqC[n] -= peopleNum;
+								peoqC[0] -= peopleNum;
 							}
 						}
+					}
+					else if (tem[1]=="排除"){
+			    		for (n = 0 ; n < 32 ; n++) {
+			    			if (areaStr[n]==tem[0]) {
+			    				var peopleNum = parseInt(tem[3]);
+			    				peoy[n] -= peopleNum;
+			    				peoy[0] -= peopleNum;
+			    				peoyC[n] -= peopleNum;
+			    				peoyC[0] -= peopleNum;
+			    			}
+			    		}
 					}
 					else if (tem[2]=="确诊感染"){
 						for (n = 0 ; n < 32 ; n++) {
 							if (areaStr[n]==tem[0]) {
 								var peopleNum = parseInt(tem[3]);
-								peo[n] += peopleNum;
-								peo[0] += peopleNum;
+								peoy[n] -= peopleNum;
+								peoy[0] -= peopleNum;
+								peoq[n] += peopleNum;
+								peoq[0] += peopleNum;
+								peoyC[n] -= peopleNum;
+								peoyC[0] -= peopleNum;
+								peoqC[n] += peopleNum;
+								peoqC[0] += peopleNum;
 							}
 						}
 					}
 					str+=temp+"<br>";
 				}			
 			}
-			var people = peo;
-			document.getElementById("text").innerHTML=str;
+			document.getElementById("s1").innerHTML=peoq[0];
+			document.getElementById("s2").innerHTML=peoy[0];
+			document.getElementById("s3").innerHTML=peoDead[0];
+			document.getElementById("s4").innerHTML=peoq[0]+peoCure[0]+peoDead[0];
+			document.getElementById("s5").innerHTML=peoCure[0];
+			document.getElementById("s6").innerHTML=peoDead[0];
+			document.getElementById("m1").innerHTML="昨日+"+peoqC[0];
+			document.getElementById("m2").innerHTML="昨日+"+peoyC[0];
+			document.getElementById("m3").innerHTML="昨日+"+peoDeadC[0];
+			var peoNnm = peoqC[0]+peoCureC[0]+peoDeadC[0];
+			document.getElementById("m4").innerHTML="昨日+"+peoNnm;
+			document.getElementById("m5").innerHTML="昨日+"+peoCureC[0];
+			document.getElementById("m6").innerHTML="昨日+"+peoDeadC[0];
+			return 0;
 		};
 				
     	document.getElementById("xyqz").setAttribute("disabled", true);
@@ -185,99 +486,10 @@
     			document.getElementById("xyqz").removeAttribute("disabled");
     		}
     	};
-        require.config({
-            paths: {
-                echarts: 'http://echarts.baidu.com/build/dist' //引用资源文件夹路径，注意路径
-            }
-        });
     	function randomData() {  
        		return Math.round(Math.random()*500);  
     	};
-        require(
-            [
-                'echarts',
-                'echarts/chart/map'   // 按需加载所需图表，用到什么类型就加载什么类型，这里不需要考虑路径                    
-                //'echarts/chart/bar'     //柱形图
-                //'echarts/chart/line'    //折线图
-                //'echarts/chart/pie'     //饼图  （如需饼漏斗图动态类型切换，require时还需要echarts/chart/funnel）
-                //'echarts/chart/chord'   //和弦图
-                //'echarts/chart/map'     //地图
-                //'echarts/chart/radar'   //雷达  
-            ],
-            function (ec) {
-                var myChart = ec.init(document.getElementById('div1'));
-                var ecConfig = require('echarts/config');
-				var mydata = [  
-                    {name: '北京',value: randomData() },{name: '天津',value: randomData() },  
-                    {name: '上海',value: randomData() },{name: '重庆',value: randomData() },  
-                    {name: '河北',value: randomData() },{name: '河南',value: randomData() },  
-                    {name: '云南',value: randomData() },{name: '辽宁',value: randomData() },  
-                    {name: '黑龙江',value: randomData() },{name: '湖南',value: randomData() },  
-                    {name: '安徽',value: randomData() },{name: '山东',value: randomData() },  
-                    {name: '新疆',value: randomData() },{name: '江苏',value: randomData() },  
-                    {name: '浙江',value: randomData() },{name: '江西',value: randomData() },  
-                    {name: '湖北',value: randomData() },{name: '广西',value: randomData() },  
-                    {name: '甘肃',value: randomData() },{name: '山西',value: randomData() },  
-                    {name: '内蒙古',value: randomData() },{name: '陕西',value: randomData() },  
-                    {name: '吉林',value: randomData() },{name: '福建',value: randomData() },  
-                    {name: '贵州',value: randomData() },{name: '广东',value: randomData() },  
-                    {name: '青海',value: randomData() },{name: '西藏',value: randomData() },  
-                    {name: '四川',value: randomData() },{name: '宁夏',value: randomData() },  
-                    {name: '海南',value: randomData() },{name: '台湾',value: randomData() },  
-                    {name: '香港',value: randomData() },{name: '澳门',value: randomData() }  
-           		];
-                var option = {
-                    title: {
-                        text: '全国地图数据',
-                        subtext: '',
-                        x: 'center'
-                    },
-                    tooltip: {
-						trigger: 'item', 
-                        showContent:true,
-						alwaysShowContent:true, 
-						enterable:true, 
-						triggerOn:'mousemove|click', 
-                    },
-		    		backgroundColor: 'gray',
-		    		dataRange: {
-       					min: 0,
-        				max: 500,
-						color:['red','white'],
-						splitList: [   
-                       	    {start: 500, end: 400},{start: 399, end: 300},
-			    			{start: 299, end: 200},{start: 199, end: 100},
-			    			{start: 99, end: 10},{start: 0, end: 9},  
-                    	], 
-        			text:['高','低'],           // 文本，默认为数值文本
-  					calculable : false
-    		    	},
-                    series: [
-                    {
-                        name: '数据',
-                        type: 'map',
-                        mapType: 'china',
-                        roam: false,
-						selectedMode : 'single',
-                        itemStyle: {
-                            normal: { label: { show: true} },
-                            emphasis: { label: { show: true} }
-                        },
-                        data: mydata
-                    }]
-                };
-                myChart.setOption(option);
-				myChart.on(ecConfig.EVENT.MAP_SELECTED, function (param){
-                    var selected = param.selected;
-                    for (var p in selected) {
-                     	if (selected[p]) {
-                     		location.href = 'LocalConditions1.html';
-                    	}
-                    }
-            	});
-            }
-        ); 
-        
+   		*/   
     </script>
 </body>
 </html>
